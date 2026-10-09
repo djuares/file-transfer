@@ -1,92 +1,264 @@
-# TP1 - Redes 1C 2025: File Transfer
+# 📦 Reliable File Transfer Protocol over UDP
 
-Este repositorio contiene la entrega del primer Trabajo Práctico (TP1) de la materia **Redes de Computadoras** de la **Facultad de Ingeniería** de la **Universidad de Buenos Aires**.
+Implementation of a reliable file transfer system over UDP, featuring **Stop-and-Wait** and **Selective Repeat** protocols. Developed as an academic project for the Computer Networks course at the University of Buenos Aires (UBA).
 
-## Instrucciones de instalación y ejecución de tests
+---
 
-1. **Ubicarse en la carpeta raíz** del proyecto.
+## 🚀 About the Project
 
-2. **Instalar el proyecto en modo editable** ejecutando el siguiente comando:
+This project implements a client-server architecture that provides reliable file transfer over UDP.
+
+It features an application-level three-way handshake for connection establishment and supports testing in virtual network environments using **Mininet** under adverse network conditions, including packet loss and IP fragmentation.
+
+## 🛠️ Tech Stack
+
+- **Programming Language:** Python
+- **Transport Protocol:** UDP
+- **Reliability Protocols:** Stop-and-Wait, Selective Repeat
+- **Network Simulation:** Mininet, `netem`, iperf
+- **Network Analysis:** Wireshark
+- **Version Control and Packaging:** Git, pip
+- **Testing:** Python `unittest`
+
+---
+
+## ⚙️ Installation and Setup
+
+### 1. Navigate to the project root directory
+
+Open a terminal and navigate to the project's root directory.
+
+### 2. Install the project in editable mode
 
 ```bash
 pip install -e .
 ```
 
-3. **Ejecutar los tests** utilizando:
+### 3. Run the tests
 
 ```bash
-python -m test.run [-vv] [-vq]
-# Sin argumento para NORMAL logger
-# -vv para VERBOSE logger
-# -vq para QUIET logger
+python3 -m test.run [-vv] [-vq]
 ```
 
-4. **Ejecutar la aplicacion** utilizando las linas de comando que siguen en distintas terminales de comando:
+Logging modes:
+
+- **Default:** Normal logging mode.
+- `-vv`: Verbose logging mode.
+- `-vq`: Quiet logging mode.
+
+### 4. Run the application locally
+
+Start the server:
 
 ```bash
-python3 ./src/start-server.py -H 0.0.0.0 -p 11111 -s ./serverfiles -v 
-python3 ./src/upload.py -H 0.0.0.0 -p 11111 -s /home/damaris/clientfiles/prueba5M.txt -n file_udp.txt -v 
-python3 ./src/download.py -H 0.0.0.0 -p 11111 -d /home/damaris/clientfiles/prueba5Mdownload.txt -n file_udp.txt -v 
+python3 ./src/start-server.py \
+  -H 0.0.0.0 \
+  -p 11111 \
+  -s ./serverfiles \
+  -v
 ```
 
-## Como expandir el proyecto sin romper test o instalador
+Upload a file to the server:
 
-1. **Agregar archivo** `__init__.py` vacio a cada carpeta.
+```bash
+python3 ./src/upload.py \
+  -H 0.0.0.0 \
+  -p 11111 \
+  -s /home/damaris/clientfiles/prueba5M.txt \
+  -n file_udp.txt \
+  -v
+```
 
-2. **Para agregar tests** 
-    * **Siempre definir los test** dentro de una clase que herede `unittest.TestCase`.
-    * **Los tests son metodos** que comienzan con `test_` dentro de la clase.
+Download a file from the server:
+
+```bash
+python3 ./src/download.py \
+  -H 0.0.0.0 \
+  -p 11111 \
+  -d /home/damaris/clientfiles/prueba5Mdownload.txt \
+  -n file_udp.txt \
+  -v
+```
+
+---
+
+## 🧪 Extending the Project Without Breaking Tests or Installation
+
+### Adding Python packages
+
+Add an empty `__init__.py` file to each package directory, where required, to ensure Python recognizes it as a package.
+
+### Adding tests
+
+- Define test classes that inherit from `unittest.TestCase`.
+- Test methods must start with the `test_` prefix.
+
+Example:
 
 ```python
 import unittest
+
 
 class TestSimple(unittest.TestCase):
     def test_true(self):
         self.assertTrue(True)
 ```
-## Red virtual con mininet
-Ejecutar la **topologia**
+
+---
+
+## 🌐 Virtual Network Testing with Mininet
+
+### 1. Start the virtual topology
+
+Run the following command from the project directory containing `mytopo.py`:
+
 ```bash
 sudo mn --custom mytopo.py --topo mytopo
 ```
-Iniciar cliente en h1 y server en h2
+
+### 2. Start the server and client
+
+The following examples assume that `h1` runs the server and `h2` runs the client, with the server reachable at `10.0.0.1`.
+
+#### Stop-and-Wait
+
+Start the server on `h1`:
+
 ```bash
-// sw
-<mininet> h1 python3 ./src/start-server.py -H 10.0.0.1 -p 11111 -s ./serverfiles -v  > logfile 2> errorlogfile  & 
-<mininet> h2 python3 ./src/upload.py -H 10.0.0.1 -p 11111 -s /home/damaris/clientfiles/prueba5M.txt -n file_udp.txt -v > logupload 2> errorlogupload 
-
-<mininet> h2 python3 ./src/download.py -H 10.0.0.1 -p 11111 -d /home/damaris/clientfiles/prueba5Mdownload.txt -n file_udp.txt -v > logupload 2> errorlogupload 
-
-// sr
-<mininet> h1 python3 ./src/start-server.py -H 10.0.0.1 -p 11111 -s ./serverfiles -v -r sr > logfile 2> errorlogfile   & 
-<mininet> h2 python3 ./src/upload.py -H 10.0.0.1 -p 11111 -s /home/damaris/clientfiles/prueba5M.txt -n file_udp.txt -v -r sr > logupload 2> errorlogupload 
-
-<mininet> h2 python3 ./src/download.py -H 10.0.0.1 -p 11111 -d /home/damaris/clientfiles/prueba5Mdownload.txt -n file_udp.txt -v -r sr> logupload 2> errorlogupload 
-
-
+mininet> h1 python3 ./src/start-server.py \
+  -H 10.0.0.1 -p 11111 -s ./serverfiles -v \
+  > logfile 2> errorlogfile &
 ```
-Verificar inicialización
+
+Upload a file from `h2`:
+
+```bash
+mininet> h2 python3 ./src/upload.py \
+  -H 10.0.0.1 -p 11111 \
+  -s /home/damaris/clientfiles/prueba5M.txt \
+  -n file_udp.txt -v \
+  > logupload 2> errorlogupload
+```
+
+Download a file from `h2`:
+
+```bash
+mininet> h2 python3 ./src/download.py \
+  -H 10.0.0.1 -p 11111 \
+  -d /home/damaris/clientfiles/prueba5Mdownload.txt \
+  -n file_udp.txt -v \
+  > logdownload 2> errordownload
+```
+
+#### Selective Repeat
+
+Start the server on `h1` with Selective Repeat enabled:
+
+```bash
+mininet> h1 python3 ./src/start-server.py \
+  -H 10.0.0.1 -p 11111 -s ./serverfiles -v -r sr \
+  > logfile 2> errorlogfile &
+```
+
+Upload a file from `h2`:
+
+```bash
+mininet> h2 python3 ./src/upload.py \
+  -H 10.0.0.1 -p 11111 \
+  -s /home/damaris/clientfiles/prueba5M.txt \
+  -n file_udp.txt -v -r sr \
+  > logupload 2> errorlogupload
+```
+
+Download a file from `h2`:
+
+```bash
+mininet> h2 python3 ./src/download.py \
+  -H 10.0.0.1 -p 11111 \
+  -d /home/damaris/clientfiles/prueba5Mdownload.txt \
+  -n file_udp.txt -v -r sr \
+  > logdownload 2> errordownload
+```
+
+### 3. Verify network initialization
+
+Inspect the virtual network topology:
+
 ```bash
 mininet> dump
 ```
-Configurar **packet loss** (10%) y verificar con ping 
+
+### 4. Simulate packet loss
+
+Configure a **10% packet loss rate** on the specified switch interface:
+
 ```bash
 mininet> sh tc qdisc add dev s3-eth2 root netem loss 10%
 ```
-Modificar **MTUs** de switches
+
+Verify connectivity using `ping` between the hosts.
+
+### 5. Modify switch MTUs
+
+Inspect network interfaces:
+
 ```bash
 mininet> sh ifconfig
+```
+
+Set the MTU of a switch interface to 1000 bytes:
+
+```bash
 mininet> sh ifconfig s2-eth2 mtu 1000
 ```
-Generar trafico con **iperf** (con tamaño > MTU para generar **fragmentacion**)
-```bash
-// Udp
-mininet> h2 iperf -s -u &
-//Si el MTU es menor que 2000, el tráfico se fragmentará.
-mininet> h1 iperf -c h2 -u -b 10M -l 2000 -t 5 
 
-// Tcp
-mininet> h2 iperf -s &                              
-mininet> h1 iperf -c h2 -b 10M -M 1400 -t 5 
+### 6. Generate network traffic with iperf
+
+Use `iperf` to generate traffic and investigate packet fragmentation under different MTU configurations.
+
+#### UDP traffic
+
+Start a UDP server on `h2`:
+
+```bash
+mininet> h2 iperf -s -u &
 ```
 
+Generate UDP traffic from `h1` using a 2000-byte datagram payload:
+
+```bash
+mininet> h1 iperf -c h2 -u -b 10M -l 2000 -t 5
+```
+
+#### TCP traffic
+
+Start a TCP server on `h2`:
+
+```bash
+mininet> h2 iperf -s &
+```
+
+Generate TCP traffic from `h1` with a specified maximum segment size:
+
+```bash
+mininet> h1 iperf -c h2 -b 10M -M 1400 -t 5
+```
+
+**Note:** Fragmentation behavior depends on the effective MTU, packet headers, and network configuration. A UDP payload larger than the path MTU may result in IP fragmentation when fragmentation is permitted. TCP segment sizes are handled differently because TCP adjusts segment sizes to the path MTU.
+
+---
+
+## 🎯 Key Features
+
+- Reliable file transfer over UDP.
+- Stop-and-Wait and Selective Repeat protocol implementations.
+- Client-server communication architecture.
+- Application-level three-way handshake for connection establishment.
+- Automated tests using Python's `unittest` framework.
+- Network emulation with Mininet and `netem`.
+- Testing under packet loss and different MTU configurations.
+- Network traffic analysis using Wireshark and iperf.
+
+---
+
+**Academic Project** — Computer Networks, University of Buenos Aires (UBA).
