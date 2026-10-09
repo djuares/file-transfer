@@ -82,30 +82,6 @@ python3 ./src/download.py \
 
 ---
 
-## 🧪 Extending the Project Without Breaking Tests or Installation
-
-### Adding Python packages
-
-Add an empty `__init__.py` file to each package directory, where required, to ensure Python recognizes it as a package.
-
-### Adding tests
-
-- Define test classes that inherit from `unittest.TestCase`.
-- Test methods must start with the `test_` prefix.
-
-Example:
-
-```python
-import unittest
-
-
-class TestSimple(unittest.TestCase):
-    def test_true(self):
-        self.assertTrue(True)
-```
-
----
-
 ## 🌐 Virtual Network Testing with Mininet
 
 ### 1. Start the virtual topology
